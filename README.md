@@ -8,9 +8,9 @@ The output topic can be visualized in rviz.
 
 # Topics
 
-* `~/images` (Type `sensor_msgs/msg/Image`) - Input topic with images that have been given to a computer vision node
-* `~/detections` (Type `vision_msgs/msg/Detection2DArray`) - Input topic with detections on the given image
-* `~/dbg_image` (Type `sensor_msgs/msg/Image`) - Output topic which has bounding boxes drawn on it
+* `images` (Type `sensor_msgs/msg/Image`) - Input topic with images that have been given to a computer vision node
+* `detections` (Type `vision_msgs/msg/Detection2DArray`) - Input topic with detections on the given image
+* `dbg_image` (Type `sensor_msgs/msg/Image`) - Output topic which has bounding boxes drawn on it
 
 It is assumed the image message and detections message have identical timestamps.
 

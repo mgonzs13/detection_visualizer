@@ -40,16 +40,16 @@ class DetectionVisualizerNode(Node):
             reliability=QoSReliabilityPolicy.RELIABLE,
             depth=1)
 
-        self._image_pub = self.create_publisher(Image, '~/dbg_images', output_image_qos)
+        self._image_pub = self.create_publisher(Image, 'dbg_images', output_image_qos)
 
-        self._image_sub = message_filters.Subscriber(self, Image, '~/images')
-        self._detections_sub = message_filters.Subscriber(self, Detection2DArray, '~/detections')
+        self._image_sub = message_filters.Subscriber(self, Image, 'images')
+        self._detections_sub = message_filters.Subscriber(self, Detection2DArray, 'detections')
 
         self._synchronizer = message_filters.ApproximateTimeSynchronizer(
-            (self._image_sub, self._detections_sub), 5, 0.01)
+            (self._image_sub, self._detections_sub), 10, 0.5)
         self._synchronizer.registerCallback(self.on_detections)
 
-    def on_detections(self, image_msg, detections_msg):
+    def on_detections(self, image_msg: Image, detections_msg: Detection2DArray):
         cv_image = self._bridge.imgmsg_to_cv2(image_msg)
 
         # Draw boxes on image
@@ -80,7 +80,7 @@ class DetectionVisualizerNode(Node):
             font = cv2.FONT_HERSHEY_SIMPLEX
             cv2.putText(cv_image, label, pos, font, 0.75, color, 1, cv2.LINE_AA)
             
-        detection_image_msg = self._bridge.cv2_to_imgmsg(cv_image, encoding="bgr8")
+        detection_image_msg = self._bridge.cv2_to_imgmsg(cv_image, encoding=image_msg.encoding)
         detection_image_msg.header = image_msg.header
 
         self._image_pub.publish(detection_image_msg)
