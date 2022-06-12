@@ -13,6 +13,7 @@
 # limitations under the License.
 
 import sys
+import random
 
 import cv2
 import cv_bridge
@@ -33,6 +34,23 @@ class DetectionVisualizerNode(Node):
         super().__init__('detection_visualizer')
 
         self._bridge = cv_bridge.CvBridge()
+
+        # load class names for color visualization
+        self.declare_parameter("class_names", "")
+        class_names_files = self.get_parameter("class_names").get_parameter_value().string_value
+        
+        self._class_to_color = {}
+
+        try:
+            f = open(class_names_files, "r")
+        
+            for line in f:
+                r = random.randint(0,255)
+                g = random.randint(0,255)
+                b = random.randint(0,255)
+                self._class_to_color[line.strip()] = (r, g, b)
+        except FileNotFoundError:
+            self._class_to_color = (0, 255, 0)
 
         output_image_qos = QoSProfile(
             history=QoSHistoryPolicy.KEEP_LAST,
@@ -69,9 +87,14 @@ class DetectionVisualizerNode(Node):
             sx = detection.bbox.size_x
             sy = detection.bbox.size_y
 
+            color = None
+            if isinstance(self._class_to_color, dict):
+                color = self._class_to_color[max_class]
+            else:
+                color = self._class_to_color
+
             min_pt = (round(cx - sx / 2.0), round(cy - sy / 2.0))
             max_pt = (round(cx + sx / 2.0), round(cy + sy / 2.0))
-            color = (0, 255, 0)
             thickness = 1
             cv2.rectangle(cv_image, min_pt, max_pt, color, thickness)
 
