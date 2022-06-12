@@ -95,7 +95,7 @@ class DetectionVisualizerNode(Node):
 
             min_pt = (round(cx - sx / 2.0), round(cy - sy / 2.0))
             max_pt = (round(cx + sx / 2.0), round(cy + sy / 2.0))
-            thickness = 1
+            thickness = 2
             cv2.rectangle(cv_image, min_pt, max_pt, color, thickness)
 
             label = '{} {:.3f}'.format(max_class, max_score)
