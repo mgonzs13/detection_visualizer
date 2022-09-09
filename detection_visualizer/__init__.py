@@ -37,17 +37,18 @@ class DetectionVisualizerNode(Node):
 
         # load class names for color visualization
         self.declare_parameter("class_names", "")
-        class_names_files = self.get_parameter("class_names").get_parameter_value().string_value
-        
+        class_names_files = self.get_parameter(
+            "class_names").get_parameter_value().string_value
+
         self._class_to_color = {}
 
         try:
             f = open(class_names_files, "r")
-        
+
             for line in f:
-                r = random.randint(0,255)
-                g = random.randint(0,255)
-                b = random.randint(0,255)
+                r = random.randint(0, 255)
+                g = random.randint(0, 255)
+                b = random.randint(0, 255)
                 self._class_to_color[line.strip()] = (r, g, b)
         except FileNotFoundError:
             self._class_to_color = (0, 255, 0)
@@ -58,10 +59,12 @@ class DetectionVisualizerNode(Node):
             reliability=QoSReliabilityPolicy.RELIABLE,
             depth=1)
 
-        self._image_pub = self.create_publisher(Image, 'dbg_images', output_image_qos)
+        self._image_pub = self.create_publisher(
+            Image, 'dbg_images', output_image_qos)
 
         self._image_sub = message_filters.Subscriber(self, Image, 'images')
-        self._detections_sub = message_filters.Subscriber(self, Detection2DArray, 'detections')
+        self._detections_sub = message_filters.Subscriber(
+            self, Detection2DArray, 'detections')
 
         self._synchronizer = message_filters.ApproximateTimeSynchronizer(
             (self._image_sub, self._detections_sub), 10, 0.5)
@@ -75,9 +78,9 @@ class DetectionVisualizerNode(Node):
             max_class = None
             max_score = 0.0
             for hypothesis in detection.results:
-                if hypothesis.score > max_score:
-                    max_score = hypothesis.score
-                    max_class = hypothesis.id
+                if hypothesis.hypothesis.score > max_score:
+                    max_score = hypothesis.hypothesis.score
+                    max_class = hypothesis.hypothesis.class_id
             if max_class is None:
                 print("Failed to find class with highest score", file=sys.stderr)
                 return
@@ -101,9 +104,11 @@ class DetectionVisualizerNode(Node):
             label = '{} {:.3f}'.format(max_class, max_score)
             pos = (min_pt[0], max_pt[1])
             font = cv2.FONT_HERSHEY_SIMPLEX
-            cv2.putText(cv_image, label, pos, font, 0.75, color, 1, cv2.LINE_AA)
-            
-        detection_image_msg = self._bridge.cv2_to_imgmsg(cv_image, encoding=image_msg.encoding)
+            cv2.putText(cv_image, label, pos, font,
+                        0.75, color, 1, cv2.LINE_AA)
+
+        detection_image_msg = self._bridge.cv2_to_imgmsg(
+            cv_image, encoding=image_msg.encoding)
         detection_image_msg.header = image_msg.header
 
         self._image_pub.publish(detection_image_msg)
