@@ -85,8 +85,8 @@ class DetectionVisualizerNode(Node):
                 print("Failed to find class with highest score", file=sys.stderr)
                 return
 
-            cx = detection.bbox.center.x
-            cy = detection.bbox.center.y
+            cx = detection.bbox.center.position.x
+            cy = detection.bbox.center.position.y
             sx = detection.bbox.size_x
             sy = detection.bbox.size_y
 
